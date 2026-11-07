@@ -58,6 +58,9 @@ def translate(seq):
 # Role 1: Mutator
 # ---------------------------------------------------------------------------
 
+import random
+BASES = "ACGT"
+
 def substitute(seq):
     pos = random.randrange(len(seq))
     new_base = random.choice([b for b in BASES if b != seq[pos]])
@@ -74,14 +77,12 @@ def delete(seq):
     pos = random.randrange(len(seq))
     return seq[:pos] + seq[pos + 1:], pos
 
-
 def random_mutation(seq):
-    """Apply one randomly chosen mutation.
-    Returns (new_seq, kind, position), where kind is
-    "substitution", "insertion" or "deletion"."""
-    # TODO
-    pass
+    kind, func = random.choice([("Substitution", substitute), ("Insertion", insert), ("Deletion", delete),])
+    new_seq, pos = func(seq)
+    return new_seq, kind, pos
 
+print(random_mutation(TEST_SEQUENCE))
 
 # ---------------------------------------------------------------------------
 # Role 2: Classifier
