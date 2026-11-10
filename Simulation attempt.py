@@ -1,3 +1,4 @@
+# Role 3 Simulator:
 
 def run_simulation(seq, trials, mode="any"):
     """Mutate the ORIGINAL seq `trials` times, translate and classify each result,
