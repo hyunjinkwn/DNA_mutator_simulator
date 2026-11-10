@@ -20,7 +20,7 @@ for i in range(trials):
 
     mutated_protein = translate(mutated_seq)
 
-    effect = clasifz(original_protein, mutated_protein, kind)
+    effect = classify(original_protein, mutated_protein, kind)
 
     counts[effect] += 1
     
