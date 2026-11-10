@@ -55,6 +55,9 @@ def translate(seq):
 # Role 1: Mutator
 # ---------------------------------------------------------------------------
 
+import random
+BASES = "ACGT"
+
 def substitute(seq):
     pos = random.randrange(len(seq))
     new_base = random.choice([b for b in BASES if b != seq[pos]])
@@ -71,7 +74,6 @@ def delete(seq):
     pos = random.randrange(len(seq))
     return seq[:pos] + seq[pos + 1:], pos
 
-
 def random_mutation(seq):
     kind, func = random.choice([
         ("substitution", substitute),
@@ -81,6 +83,7 @@ def random_mutation(seq):
     new_seq, pos = func(seq)
     return new_seq, kind, pos
 
+print(random_mutation(TEST_SEQUENCE))
 
 # ---------------------------------------------------------------------------
 # Role 2: Classifier
@@ -93,44 +96,36 @@ def classify(original_protein, mutated_protein, kind):
     - a shorter mutated protein means "nonsense"
     - anything else is "missense"
     """
-    if kind in ("insertion", "deletion"):
+    if kind in ["insertion", "deletion"]:
         return "frameshift"
-    elif original_protein == mutated_protein:
+    if original_protein == mutated_protein:
         return "silent"
-    elif len(original_protein) > len(mutated_protein):
+    if len(mutated_protein) < len(original_protein):
         return "nonsense"
-    else:
-        return "missense"
 
-
+    return "missense"
 # ---------------------------------------------------------------------------
 # Role 3: Simulator
 # ---------------------------------------------------------------------------
 
 def run_simulation(seq, trials, mode="any"):
-    """Mutate the ORIGINAL seq `trials` times, translate and classify each result,
-    and return a dictionary of counts."""
     counts = {"silent": 0, "missense": 0, "nonsense": 0, "frameshift": 0}
     original_protein = translate(seq)
 
     for _ in range(trials):
         if mode == "substitution":
-            new_seq = substitute(seq)[0]
+            mutated_seq, _position = substitute(seq)
             kind = "substitution"
-        else:
-            new_seq = random_mutation(seq)[0]
-            if len(new_seq) < len(seq):
-                kind = "deletion"
-            elif len(new_seq) > len(seq):
-                kind = "insertion"
-            else:
-                kind = "substitution"
 
-        result = classify(original_protein, translate(new_seq), kind)
-        counts[result] += 1
+        else:
+            mutated_seq, kind, _position = random_mutation(seq)
+
+    mutated_protein = translate(mutated_seq)
+
+    effect = classify(original_protein, mutated_protein, kind)
+    counts[effect] += 1
 
     return counts
-
 
 # ---------------------------------------------------------------------------
 # Role 4: Reporter
@@ -188,7 +183,6 @@ def demo_one_mutation(seq):
 # print(classify(["Met", "Ala"], ["Met", "Asp"], "substitution"))  # missense
 # print(classify(["Met", "Ala"], ["Met"], "substitution"))         # nonsense
 # print(classify(["Met", "Ala"], ["Met", "Cys"], "insertion"))     # frameshift
-
 
 # ---------------------------------------------------------------------------
 # Main program - run this once everything is connected
