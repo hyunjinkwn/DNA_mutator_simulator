@@ -7,6 +7,7 @@ versions, and classifies the effect on the protein.
 """
 
 import random
+
 # ---------------------------------------------------------------------------
 # Provided code: codon table and translator
 # ---------------------------------------------------------------------------
@@ -32,7 +33,6 @@ CODON_TABLE = {
 
 BASES = "ACGT"
 
-
 # A test gene: 20 codons, starts with ATG, ends with a stop codon,
 # and has no stop codons in the middle.
 TEST_SEQUENCE = (
@@ -42,8 +42,6 @@ TEST_SEQUENCE = (
 
 
 def translate(seq):
-    """Translate DNA into a list of amino acids, stopping at the first stop codon.
-    Leftover bases at the end (fewer than 3) are ignored."""
     protein = []
     for i in range(0, len(seq) - 2, 3):
         amino_acid = CODON_TABLE[seq[i:i + 3]]
@@ -77,7 +75,11 @@ def delete(seq):
     return seq[:pos] + seq[pos + 1:], pos
 
 def random_mutation(seq):
-    kind, func = random.choice([("substitution", substitute), ("insertion", insert), ("deletion", delete),])
+    kind, func = random.choice([
+        ("substitution", substitute),
+        ("insertion", insert),
+        ("deletion", delete)
+    ])
     new_seq, pos = func(seq)
     return new_seq, kind, pos
 
