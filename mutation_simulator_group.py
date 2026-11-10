@@ -78,7 +78,7 @@ def delete(seq):
     return seq[:pos] + seq[pos + 1:], pos
 
 def random_mutation(seq):
-    kind, func = random.choice([("Substitution", substitute), ("Insertion", insert), ("Deletion", delete),])
+    kind, func = random.choice([("substitution", substitute), ("insertion", insert), ("deletion", delete),])
     new_seq, pos = func(seq)
     return new_seq, kind, pos
 
