@@ -1,4 +1,3 @@
-print("Role 1 - Hyunjin Kwon")
 """
 Fill in every function marked TODO. Keep the function names and
 return values exactly as described so the group's parts fit together.
@@ -111,21 +110,20 @@ def run_simulation(seq, trials, mode="any"):
     counts = {"silent": 0, "missense": 0, "nonsense": 0, "frameshift": 0}
     original_protein = translate(seq)
 
-    for i in range(trials):
+    for _ in range(trials):
         if mode == "substitution":
-        mutated_seq, position = substitute(seq)
-        kind = "substitution"
+            mutated_seq, _position = substitute(seq)
+            kind = "substitution"
 
         else:
-        mutated_seq, kind, position = random_mutation(seq)
+            mutated_seq, kind, _position = random_mutation(seq)
 
     mutated_protein = translate(mutated_seq)
 
     effect = classify(original_protein, mutated_protein, kind)
-
     counts[effect] += 1
-    return counts
 
+    return counts
 
 # ---------------------------------------------------------------------------
 # Role 4: Reporter
@@ -183,7 +181,6 @@ def demo_one_mutation(seq):
 # print(classify(["Met", "Ala"], ["Met", "Asp"], "substitution"))  # missense
 # print(classify(["Met", "Ala"], ["Met"], "substitution"))         # nonsense
 # print(classify(["Met", "Ala"], ["Met", "Cys"], "insertion"))     # frameshift
-
 
 # ---------------------------------------------------------------------------
 # Main program - run this once everything is connected
