@@ -95,20 +95,35 @@ def classify(original_protein, mutated_protein, kind):
     - a shorter mutated protein means "nonsense"
     - anything else is "missense"
     """
-    # TODO
-    pass
+    if kind in ["insertion", "deletion"]:
+        return "frameshift"
+    if original_protein == mutated_protein:
+        return "silent"
+    if len(mutated_protein) < len(original_protein):
+        return "nonsense"
 
-
+    return "missense"
 # ---------------------------------------------------------------------------
 # Role 3: Simulator
 # ---------------------------------------------------------------------------
 
 def run_simulation(seq, trials, mode="any"):
-    """Mutate the ORIGINAL seq `trials` times, translate and classify each result,
-        and return a dictionary of counts, e.g. {"silent": 241, "missense": 690, ...}.
-        mode="substitution" uses only substitute(); mode="any" uses random_mutation()."""
     counts = {"silent": 0, "missense": 0, "nonsense": 0, "frameshift": 0}
-    # TODO
+    original_protein = translate(seq)
+
+    for i in range(trials):
+        if mode == "substitution":
+        mutated_seq, position = substitute(seq)
+        kind = "substitution"
+
+        else:
+        mutated_seq, kind, position = random_mutation(seq)
+
+    mutated_protein = translate(mutated_seq)
+
+    effect = classify(original_protein, mutated_protein, kind)
+
+    counts[effect] += 1
     return counts
 
 
@@ -118,8 +133,14 @@ def run_simulation(seq, trials, mode="any"):
 
 def print_report(counts):
     """Print each category with its count and its percentage of all trials."""
-    # TODO
-    pass
+    total_trials = sum(counts.values())
+    print(f"{'Effect Category':<15} | {'Count':<8} | {'Percentage':<10}")
+
+    for category, count in counts.items():
+        percentage = (count / total_trials) * 100 if total_trials > 0 else 0
+        print(f"{category.capitalize():<15} | {count:<8} | {percentage:6.2f}%")
+
+    print(f"{'Total Trials':<15} | {total_trials:<8} | 100.00%\n")
 
 
 def plot_results(counts, title="Effects of random mutations"):
@@ -136,10 +157,22 @@ def plot_results(counts, title="Effects of random mutations"):
 def demo_one_mutation(seq):
     """Show one mutation step by step: original DNA and protein, the mutation,
     mutated DNA and protein, and the classification."""
-    # TODO
-    pass
+    orig_protein = translate(seq)
 
+    print("=== Demo: Single Mutation Step ===")
+    print(f"Original DNA:     {seq}")
+    print(f"Original Protein: {orig_protein}")
+    print("-" * 50)
 
+    new_seq, kind, pos = random_mutation(seq)
+    mut_protein = translate(new_seq)
+    result = classify(orig_protein, mut_protein, kind)
+
+    print(f"Mutation Type:    {kind.capitalize()} at position {pos}")
+    print(f"Mutated DNA:      {new_seq}")
+    print(f"Mutated Protein:  {mut_protein}")
+    print(f"Classification:   {result.upper()}")
+    print("=" * 50 + "\n")
 # ---------------------------------------------------------------------------
 # Quick tests - uncomment these as your functions are ready
 # ---------------------------------------------------------------------------
@@ -162,7 +195,6 @@ if __name__ == "__main__":
     print("=== Substitutions only ===")
     sub_counts = run_simulation(TEST_SEQUENCE, 1000, mode="substitution")
     print_report(sub_counts)
-    print()
 
     print("=== All mutation types ===")
     all_counts = run_simulation(TEST_SEQUENCE, 1000, mode="any")
