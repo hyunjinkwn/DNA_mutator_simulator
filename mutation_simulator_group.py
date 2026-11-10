@@ -1,4 +1,3 @@
-print("Role 1 - Hyunjin Kwon")
 """
 Fill in every function marked TODO. Keep the function names and
 return values exactly as described so the group's parts fit together.
@@ -8,6 +7,7 @@ versions, and classifies the effect on the protein.
 """
 
 import random
+
 # ---------------------------------------------------------------------------
 # Provided code: codon table and translator
 # ---------------------------------------------------------------------------
@@ -33,7 +33,6 @@ CODON_TABLE = {
 
 BASES = "ACGT"
 
-
 # A test gene: 20 codons, starts with ATG, ends with a stop codon,
 # and has no stop codons in the middle.
 TEST_SEQUENCE = (
@@ -43,8 +42,6 @@ TEST_SEQUENCE = (
 
 
 def translate(seq):
-    """Translate DNA into a list of amino acids, stopping at the first stop codon.
-    Leftover bases at the end (fewer than 3) are ignored."""
     protein = []
     for i in range(0, len(seq) - 2, 3):
         amino_acid = CODON_TABLE[seq[i:i + 3]]
@@ -76,11 +73,13 @@ def delete(seq):
 
 
 def random_mutation(seq):
-    """Apply one randomly chosen mutation.
-    Returns (new_seq, kind, position), where kind is
-    "substitution", "insertion" or "deletion"."""
-    # TODO
-    pass
+    kind, func = random.choice([
+        ("substitution", substitute),
+        ("insertion", insert),
+        ("deletion", delete)
+    ])
+    new_seq, pos = func(seq)
+    return new_seq, kind, pos
 
 
 # ---------------------------------------------------------------------------
@@ -94,8 +93,14 @@ def classify(original_protein, mutated_protein, kind):
     - a shorter mutated protein means "nonsense"
     - anything else is "missense"
     """
-    # TODO
-    pass
+    if kind in ("insertion", "deletion"):
+        return "frameshift"
+    elif original_protein == mutated_protein:
+        return "silent"
+    elif len(original_protein) > len(mutated_protein):
+        return "nonsense"
+    else:
+        return "missense"
 
 
 # ---------------------------------------------------------------------------
@@ -104,10 +109,26 @@ def classify(original_protein, mutated_protein, kind):
 
 def run_simulation(seq, trials, mode="any"):
     """Mutate the ORIGINAL seq `trials` times, translate and classify each result,
-        and return a dictionary of counts, e.g. {"silent": 241, "missense": 690, ...}.
-        mode="substitution" uses only substitute(); mode="any" uses random_mutation()."""
+    and return a dictionary of counts."""
     counts = {"silent": 0, "missense": 0, "nonsense": 0, "frameshift": 0}
-    # TODO
+    original_protein = translate(seq)
+
+    for _ in range(trials):
+        if mode == "substitution":
+            new_seq = substitute(seq)[0]
+            kind = "substitution"
+        else:
+            new_seq = random_mutation(seq)[0]
+            if len(new_seq) < len(seq):
+                kind = "deletion"
+            elif len(new_seq) > len(seq):
+                kind = "insertion"
+            else:
+                kind = "substitution"
+
+        result = classify(original_protein, translate(new_seq), kind)
+        counts[result] += 1
+
     return counts
 
 
@@ -117,8 +138,14 @@ def run_simulation(seq, trials, mode="any"):
 
 def print_report(counts):
     """Print each category with its count and its percentage of all trials."""
-    # TODO
-    pass
+    total_trials = sum(counts.values())
+    print(f"{'Effect Category':<15} | {'Count':<8} | {'Percentage':<10}")
+
+    for category, count in counts.items():
+        percentage = (count / total_trials) * 100 if total_trials > 0 else 0
+        print(f"{category.capitalize():<15} | {count:<8} | {percentage:6.2f}%")
+
+    print(f"{'Total Trials':<15} | {total_trials:<8} | 100.00%\n")
 
 
 def plot_results(counts, title="Effects of random mutations"):
@@ -135,10 +162,22 @@ def plot_results(counts, title="Effects of random mutations"):
 def demo_one_mutation(seq):
     """Show one mutation step by step: original DNA and protein, the mutation,
     mutated DNA and protein, and the classification."""
-    # TODO
-    pass
+    orig_protein = translate(seq)
 
+    print("=== Demo: Single Mutation Step ===")
+    print(f"Original DNA:     {seq}")
+    print(f"Original Protein: {orig_protein}")
+    print("-" * 50)
 
+    new_seq, kind, pos = random_mutation(seq)
+    mut_protein = translate(new_seq)
+    result = classify(orig_protein, mut_protein, kind)
+
+    print(f"Mutation Type:    {kind.capitalize()} at position {pos}")
+    print(f"Mutated DNA:      {new_seq}")
+    print(f"Mutated Protein:  {mut_protein}")
+    print(f"Classification:   {result.upper()}")
+    print("=" * 50 + "\n")
 # ---------------------------------------------------------------------------
 # Quick tests - uncomment these as your functions are ready
 # ---------------------------------------------------------------------------
@@ -161,7 +200,6 @@ if __name__ == "__main__":
     print("=== Substitutions only ===")
     sub_counts = run_simulation(TEST_SEQUENCE, 1000, mode="substitution")
     print_report(sub_counts)
-    print()
 
     print("=== All mutation types ===")
     all_counts = run_simulation(TEST_SEQUENCE, 1000, mode="any")
